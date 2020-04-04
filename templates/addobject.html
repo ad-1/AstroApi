@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }} <!-- adds CSRF token for security -->
+        <fieldset class="form-group row">
+            <legend class="border-bottom mb-4">Add Celestial Data!</legend>
+            {% for field in form %}
+            {% if field.type == "StringField" %}
+            <div class="form-group">
+                {{ field.label(class="col-form-label") }}
+                {% if field.errors %}
+                {{ field(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ field(class="form-control") }}
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}
