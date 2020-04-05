@@ -10,13 +10,14 @@
     </tr>
     </thead>
     <tbody>
-    {% for object in objects %}
+    {% for body in bodies %}
     <tr>
-        <th>{{ object.object }}</th>
-        <td>{{ object.radius }}</td>
-        <td>{{ object.mass }}</td>
+        <th>{{ body.name }}</th>
+        <td>{{ body.radius }}</td>
+        <td>{{ body.mass }}</td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
+
 {% endblock content %}
