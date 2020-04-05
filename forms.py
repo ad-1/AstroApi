@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length
 
 
 class CelestialDataForm(FlaskForm):
-    object = StringField('Object', validators=[DataRequired(), Length(min=2, max=20)])
-    radius = StringField('Radius (m)', validators=[DataRequired(), ])
+    name = StringField('Object', validators=[DataRequired(), Length(min=2, max=20)])
+    radius = StringField('Radius (km)', validators=[DataRequired(), ])
     mass = StringField('Mass (kg)', validators=[DataRequired()])
     submit = SubmitField('Submit Data')
