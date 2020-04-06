@@ -2,11 +2,12 @@
 {% block content %}
 <div class="content-section mt-5">
     <form method="POST" action="">
-        {{ form.hidden_tag() }} <!-- adds CSRF token for security -->
+        <!-- adds CSRF token for security -->
+        {{ form.hidden_tag() }}
         <fieldset class="form-group row">
-            <legend class="border-bottom mt-5 mb-4">Add Celestial Data!</legend>
+            <legend class="border-bottom mt-5 mb-4">Add A New Celestial Object!</legend>
             {% for field in form %}
-            {% if field.type == "StringField" %}
+            {% if field.type == "TextAreaField" %}
             <div class="form-group">
                 {{ field.label(class="col-form-label") }}
                 {% if field.errors %}
@@ -17,7 +18,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ field(class="form-control") }}
+                {{ field(class="form-control", cols="60", rows="20", id="json-textArea") }}
                 {% endif %}
             </div>
             {% endif %}
@@ -29,3 +30,14 @@
     </form>
 </div>
 {% endblock content %}
+{% block scripts %}
+<script>
+    var data = {
+        "name": "Earth",
+        "radius": 6378,
+        "mass": 5.972e24,
+        "gravity": 9.81
+    }
+    document.getElementById("json-textArea").innerHTML = JSON.stringify(data, undefined, 4)
+</script>
+{% endblock %}
