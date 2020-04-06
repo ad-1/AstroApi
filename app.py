@@ -1,4 +1,6 @@
 import os
+import json
+from collections import namedtuple
 from forms import CelestialDataForm
 from flask import Flask, url_for, render_template, flash, redirect, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -9,7 +11,8 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
+    os.path.join(basedir, 'data.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '71fc8da29cac1c1abbe3e08ba0d4f4c4'
 
@@ -27,6 +30,10 @@ class Body(db.Model):
     name = db.Column(db.String(20), unique=True, nullable=False)
     radius = db.Column(db.Integer, unique=False, nullable=False)
     mass = db.Column(db.Integer, unique=False, nullable=False)
+    gravity = db.Column(db.Integer, unique=False, nullable=True)
+
+    def __init__(self, dict):
+        vars(self).update(dict)
 
     def __repr__(self):
         return 'Body({})'.format(self.name)
@@ -35,7 +42,7 @@ class Body(db.Model):
 # celestial body marshmallow schema
 class BodySchema(ma.Schema):
     class Meta:
-        fields = ('name', 'radius', 'mass') # model = Body
+        fields = ('name', 'radius', 'mass', 'gravity')  # model = Body
 
 
 body_schema = BodySchema()
@@ -52,8 +59,8 @@ def home():
 def add_body():
     form = CelestialDataForm()
     if form.validate_on_submit():
-        body = Body(name=form.name.data, radius=form.radius.data, mass=form.mass.data)
-        flash('Data added for {}!'.format(form.name.data), 'success')
+        body = json.loads(form.body.data, object_hook=Body)
+        flash('Data added for {}!'.format(body.name), 'success')
         db.session.add(body)
         db.session.commit()
         return redirect(url_for('home'))
@@ -76,13 +83,11 @@ def body(id):
 # update body
 @app.route('/update/<int:id>', methods=['PUT'])
 def update(id):
+    # mass = request.json['mass']
     body = Body.query.get_or_404(id)
-    name = request.json['name']
-    mass = request.json['mass']
-    radius = request.json['radius']
-    body.name = name
-    body.mass = mass
-    body.radius = radius
+    body_updated = json.loads(request.data, object_hook=Body)
+    body.gravity = body_updated.gravity
+    flash('Data updated for {}!'.format(body.name), 'success')
     db.session.commit()
     return body_schema.jsonify(body)
 
@@ -93,6 +98,14 @@ def delete(id):
     db.session.delete(body)
     db.session.commit()
     return body_schema.jsonify(body)
+
+# calculate weight on body
+@app.route('/weight_on/<string:name>', methods=['GET'])
+def weight_on(name):
+    body = Body.query.filter_by(name=name).first()
+    weight = body.mass * body.gravity
+    return jsonify({'weight': weight})
+
 
 # run server
 if __name__ == '__main__':
