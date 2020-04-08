@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container-fluid">
-    <h4 class="mt-4">Overview</h4>
-    <p>The available data for objects is described in the following table.</p>
-    <table class="table">
+    <table class="table mt-4 mb-4">
         <thead>
             <tr>
                 <th scope="col">Parameter</th>
@@ -15,26 +13,73 @@
             <tr>
                 <td>radius</td>
                 <td>km</td>
-                <td>Radius of the object in kilometers</td>
+                <td>radius of the object in kilometers</td>
             </tr>
             <tr>
                 <td>mass</td>
                 <td>kg</td>
-                <td>Mass of the object in kilograms</td>
+                <td>mass of the object in kilograms</td>
             </tr>
             <tr>
                 <td>gravity</td>
                 <td>m/s^2</td>
-                <td>Acceleration due to gravity on the surface of the body</td>
+                <td>acceleration due to gravity on the surface of the body</td>
+            </tr>
+            <tr>
+                <td>sidereal_rotation_period</td>
+                <td>hours</td>
+                <td>time taken to complete a single revolution around its axis of rotation relative to the background
+                    stars</td>
+            </tr>
+            <tr>
+                <td>inclination_of_equator_to_orbit_plane</td>
+                <td>degrees</td>
+                <td>tilt of an object's orbit relative to the orbit plane</td>
+            </tr>
+            <tr>
+                <td>semimajor_axis</td>
+                <td>km</td>
+                <td>one half of the major axis</td>
+            </tr>
+            <tr>
+                <td>eccentricity</td>
+                <td>-</td>
+                <td>measure of how much the orbit deviates from being circular</td>
+            </tr>
+            <tr>
+                <td>inclination_orbit_to_ecliptic_plane</td>
+                <td>degrees</td>
+                <td>tilt of the orbit relative to the ecliptic plane</td>
+            </tr>
+            <tr>
+                <td>orbit_sidereal_period</td>
+                <td>hours</td>
+                <td>time taken to complete one orbit around central body - orbital period</td>
+            </tr>
+            <tr>
+                <td>gravitational_parameter</td>
+                <td>km^3/s^2</td>
+                <td>product of the gravitational constant G and the mass M of the body</td>
+            </tr>
+            <tr>
+                <td>sphere_of_influence</td>
+                <td>km</td>
+                <td>oblate-spheroid-shaped region where the primary gravitational influence on an orbiting object is
+                    that body</td>
             </tr>
         </tbody>
     </table>
     <h4 class="mt-4">Output</h4>
     <p><a href="{{ url_for('bodies') }}">{{ url_for('bodies') }}</a></p>
     <pre class="prettyprint"><code class="language-javascript" id="json-bodies"></code></pre>
+    <p><a href="{{ url_for('body', name='Earth') }}">{{ url_for('body', name='Earth') }}</a></p>
+    <pre class="prettyprint"><code class="language-javascript" id="json-body"></code></pre>
 </div>
 {% endblock content %}
 {% block scripts %}
 <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
-<script>document.getElementById("json-bodies").innerHTML = JSON.stringify(httpGet("{{ url_for('bodies') }}"), undefined, 4)</script>
+<script>
+    document.getElementById("json-bodies").innerHTML = JSON.stringify(httpGet("{{ url_for('bodies') }}"), undefined, 4)
+    document.getElementById("json-body").innerHTML = JSON.stringify(httpGet("{{ url_for('body', name='Earth') }}"), undefined, 4)
+</script>
 {% endblock %}

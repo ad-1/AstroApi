@@ -5,7 +5,7 @@
         <!-- adds CSRF token for security -->
         {{ form.hidden_tag() }}
         <fieldset class="form-group row">
-            <legend class="border-bottom mt-5 mb-4">Add A New Celestial Object!</legend>
+            <legend class="border-bottom mt-5 mb-4">Add A New Object</legend>
             {% for field in form %}
             {% if field.type == "TextAreaField" %}
             <div class="form-group">
