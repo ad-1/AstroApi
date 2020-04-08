@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section mt-5">
+    <form method="POST" action="">
+        <!-- adds CSRF token for security -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group row">
+            <legend class="border-bottom mt-5 mb-4">Add A New Celestial Object!</legend>
+            {% for field in form %}
+            {% if field.type == "TextAreaField" %}
+            <div class="form-group">
+                {{ field.label(class="col-form-label") }}
+                {% if field.errors %}
+                {{ field(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ field(class="form-control", cols="60", rows="20", id="json-textArea") }}
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
+<script>document.getElementById("json-textArea").innerHTML = JSON.stringify(httpGet("{{ url_for('body', name='Earth') }}"), undefined, 4)</script>
+{% endblock %}
