@@ -1,19 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-<img src="https://bit.ly/2yqUCkj" class="img-fluid" alt="Astro Image">
-<table class="table table-dark">
-    <thead>
-    <tr>
-        <th scope="col">Available Objects</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for body in bodies %}
-    <tr>
-        <th>{{ loop.index0 }}</th>
-        <td>{{ body.name }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<div class="container-fluid mt-4">
+    <p>
+        ADAPI is an open source project to provide a simple programming interface for astronomical data for
+        celestial objects. The current of available objects includes:
+    </p>
+    <ul class="list-group">
+        {% for body in bodies %}
+        <li class="list-group-item">{{ body.name }}</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock content %}
