@@ -25,17 +25,17 @@ ma = Marshmallow(app)
 
 # celestial body database model
 class Body(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), primary_key=True, unique=True, nullable=False)
-    radius = db.Column(db.Integer, unique=False, nullable=False)
-    mass = db.Column(db.Integer, unique=False, nullable=False)
-    gravity = db.Column(db.Float, unique=False, nullable=True)
-    sideread_rotation_period = db.Column(db.Integer, unique=False, nullable=True)
-    inclination_of_equator_to_orbit_plane = db.Column(db.Integer, unique=False, nullable=True)
-    semimajor_axis = db.Column(db.Integer, unique=False, nullable=True)
-    eccentricity = db.Column(db.Integer, unique=False, nullable=True)
-    inclination_orbit_to_ecliptic_plane = db.Column(db.Integer, unique=False, nullable=True)
-    orbit_sidereal_period = db.Column(db.Integer, unique=False, nullable=True)
+    radius = db.Column(db.Integer, unique=False)
+    mass = db.Column(db.Integer, unique=False)
+    sidereal_rotation_period = db.Column(db.Integer)
+    inclination_of_equator_to_orbit_plane = db.Float(db.Integer)
+    semimajor_axis = db.Column(db.Integer)
+    eccentricity = db.Column(db.Float)
+    inclination_orbit_to_ecliptic_plane = db.Column(db.Float)
+    orbit_sidereal_period = db.Column(db.Float)
+    gravitational_parameter = db.Column(db.Integer)
+    sphere_of_influence = db.Column(db.Integer)
 
     def __init__(self, dict):
         # allows model to be initialised with json schema matching parameters
@@ -77,11 +77,6 @@ def add():
         return redirect(url_for('home'))
     return render_template('add.html', form=form)
 
-# serve static js file
-@app.route('/js/<path:path>')
-def send_js(path):
-    return send_from_directory('js', path)
-
 # get all bodies
 @app.route('/bodies', methods=['GET'])
 def bodies():
@@ -121,6 +116,10 @@ def weight_on(mass, name):
     weight = mass * body.gravity
     return jsonify({'weight': weight})
 
+# serve static js file
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('js', path)
 
 # run server
 if __name__ == '__main__':
