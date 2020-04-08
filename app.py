@@ -2,7 +2,7 @@ import os
 import json
 from collections import namedtuple
 from forms import CelestialDataForm
-from flask import Flask, url_for, render_template, flash, redirect, jsonify, request
+from flask import Flask, url_for, render_template, flash, redirect, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -25,14 +25,20 @@ ma = Marshmallow(app)
 
 # celestial body database model
 class Body(db.Model):
-    """ Celestial body database model """
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), unique=True, nullable=False)
+    # id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), primary_key=True, unique=True, nullable=False)
     radius = db.Column(db.Integer, unique=False, nullable=False)
     mass = db.Column(db.Integer, unique=False, nullable=False)
-    gravity = db.Column(db.Integer, unique=False, nullable=True)
+    gravity = db.Column(db.Float, unique=False, nullable=True)
+    sideread_rotation_period = db.Column(db.Integer, unique=False, nullable=True)
+    inclination_of_equator_to_orbit_plane = db.Column(db.Integer, unique=False, nullable=True)
+    semimajor_axis = db.Column(db.Integer, unique=False, nullable=True)
+    eccentricity = db.Column(db.Integer, unique=False, nullable=True)
+    inclination_orbit_to_ecliptic_plane = db.Column(db.Integer, unique=False, nullable=True)
+    orbit_sidereal_period = db.Column(db.Integer, unique=False, nullable=True)
 
     def __init__(self, dict):
+        # allows model to be initialised with json schema matching parameters
         vars(self).update(dict)
 
     def __repr__(self):
@@ -40,9 +46,9 @@ class Body(db.Model):
 
 
 # celestial body marshmallow schema
-class BodySchema(ma.Schema):
+class BodySchema(ma.ModelSchema):
     class Meta:
-        fields = ('name', 'radius', 'mass', 'gravity')  # model = Body
+        model = Body
 
 
 body_schema = BodySchema()
@@ -54,37 +60,46 @@ def home():
     bodies = Body.query.all()
     return render_template('index.html', bodies=bodies)
 
+# api docs
+@app.route('/docs', methods=['GET'])
+def docs():
+    return render_template('docs.html')
+
 # add a new body
-@app.route('/add_body', methods=['GET', 'POST'])
-def add_body():
+@app.route('/add', methods=['GET', 'POST'])
+def add():
     form = CelestialDataForm()
     if form.validate_on_submit():
         body = json.loads(form.body.data, object_hook=Body)
-        flash('Data added for {}!'.format(body.name), 'success')
         db.session.add(body)
         db.session.commit()
+        flash('Data added for {}!'.format(body.name), 'success')
         return redirect(url_for('home'))
-    return render_template('add_body.html', form=form)
+    return render_template('add.html', form=form)
+
+# serve static js file
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('js', path)
 
 # get all bodies
 @app.route('/bodies', methods=['GET'])
-def get_bodies():
+def bodies():
     body = Body.query.all()
     body_schemas = BodySchema(many=True)
     output = body_schemas.dump(body)
     return jsonify(output)
 
 # get single body
-@app.route('/body/<int:id>')
-def body(id):
-    body = Body.query.get_or_404(id)
+@app.route('/body/<string:name>')
+def body(name):
+    body = Body.query.get_or_404(name)
     return body_schema.jsonify(body)
 
 # update body
-@app.route('/update/<int:id>', methods=['PUT'])
-def update(id):
-    # mass = request.json['mass']
-    body = Body.query.get_or_404(id)
+@app.route('/update/<string:name>', methods=['PUT'])
+def update(name):
+    body = Body.query.get_or_404(name)
     body_updated = json.loads(request.data, object_hook=Body)
     body.gravity = body_updated.gravity
     flash('Data updated for {}!'.format(body.name), 'success')
@@ -92,18 +107,18 @@ def update(id):
     return body_schema.jsonify(body)
 
 # delete body
-@app.route('/delete/<int:id>', methods=['DELETE'])
-def delete(id):
-    body = Body.query.get_or_404(id)
+@app.route('/delete/<string:name>', methods=['DELETE'])
+def delete(name):
+    body = Body.query.get_or_404(name)
     db.session.delete(body)
     db.session.commit()
     return body_schema.jsonify(body)
 
 # calculate weight on body
-@app.route('/weight_on/<string:name>', methods=['GET'])
-def weight_on(name):
+@app.route('/weight_for_mass_<int:mass>_on_<string:name>', methods=['GET'])
+def weight_on(mass, name):
     body = Body.query.filter_by(name=name).first()
-    weight = body.mass * body.gravity
+    weight = mass * body.gravity
     return jsonify({'weight': weight})
 
 
